@@ -9,7 +9,7 @@ export default function FormWrapper({
   children,
 }: FormWrapperProps) {
   return (
-    <div className="w-[23rem] rounded-3xl bg-black/30 p-6 backdrop-blur-sm">
+    <div className="w-[23rem] rounded-3xl bg-black/60 p-6 backdrop-blur-sm">
       <div className="flex flex-col gap-y-4">
         <div className="flex flex-col gap-y-1.5">
           <h1 className="text-3xl text-background dark:text-foreground font-bold">{title}</h1>

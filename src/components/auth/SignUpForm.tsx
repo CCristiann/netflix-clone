@@ -1,6 +1,5 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -11,43 +10,35 @@ import {
 } from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/trpc/react";
-import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { error } from "console";
 import { Button } from "../ui/button";
 import { LuLoader } from "react-icons/lu";
-import { FcGoogle } from "react-icons/fc";
-import { useMutation } from "@tanstack/react-query";
-import { signIn } from "next-auth/react";
 import FormWrapper from "./FormWrapper";
 import { Input } from "../ui/input";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import {
+  SignUpSchema,
+  TSignUp,
+} from "@/server/api/routers/auth/service/auth.service.types";
 import Socials from "./Socials";
-import { SignInSchema, TSignIn } from "@/server/api/routers/auth/service/auth.service.types";
 
-export default function SignInForm() {
-  const router = useRouter();
-  const form = useForm<TSignIn>({
-    resolver: zodResolver(SignInSchema),
+export default function SignUpForm() {
+  const form = useForm<TSignUp>({
+    resolver: zodResolver(SignUpSchema),
     defaultValues: {
+      fullName: "",
       email: "",
       password: "",
-    }
+      confirmPassword: "",
+    },
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationKey: ["signIn"],
-    mutationFn: async (values: TSignIn) => {
-      await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: false
-      });
-    },
+  const { mutate, isPending } = api.auth.signUp.useMutation({
     onSuccess: () => {
       toast({
         title: "Great news!",
-        description: "You have successfully signed in!",
+        description: "You have successfully signed up!",
       });
       form.reset();
     },
@@ -58,12 +49,14 @@ export default function SignInForm() {
         description: err.message || "Please try again later.",
       });
     },
-  })
+  });
 
-  const onSubmit = (values: TSignIn) => mutate(values);
-
+  const onSubmit = (values: TSignUp) => mutate(values);
   return (
-    <FormWrapper title="Sign in" description="Sign in to your account">
+    <FormWrapper
+      title="Sign up"
+      description="Get started by creating an account!"
+    >
       <Socials />
       <Form {...form}>
         <form
@@ -71,6 +64,25 @@ export default function SignInForm() {
           className="w-full space-y-6"
         >
           <div className="w-full space-y-2.5">
+            <FormField
+              control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem className="w-full space-y-1">
+                  <FormLabel className="sr-only">Full name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      type="text"
+                      placeholder="Full name"
+                      className="bg-background"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -111,12 +123,32 @@ export default function SignInForm() {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem className="w-full space-y-1">
+                  <FormLabel className="sr-only">Confirm password</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      type="password"
+                      placeholder="Confirm password"
+                      className="bg-background"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="space-y-1.5">
               <Button disabled={isPending} type="submit" className="w-full">
                 {isPending ? (
                   <LuLoader className="size-5 animate-spin" />
                 ) : (
-                  <span>Sign in</span>
+                  <span>Create an account</span>
                 )}
               </Button>
               <p className="text-xs text-muted-foreground">

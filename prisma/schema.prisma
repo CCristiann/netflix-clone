@@ -41,8 +41,10 @@ model User {
     name          String
     email         String?   @unique
     emailVerified DateTime?
+    password      String?
     image         String?
     accounts      Account[]
+    feedbacks     MovieFeedback[]
 
     createdAt        DateTime  @default(now())
     updatedAt        DateTime  @updatedAt
@@ -73,9 +75,26 @@ model Movie {
     thumbnailUrl String
     genres Genres[]
     duration String
+
+    feedbacks MovieFeedback[]
    
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     @@map("movies")
+}
+
+model MovieFeedback {
+    id String @id @default(cuid())
+    title String
+    description String
+
+    user User @relation(fields: [userId], references: [id])
+    userId String
+
+    movie Movie @relation(fields: [movieId], references: [id])
+    movieId String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
